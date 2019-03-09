@@ -1,5 +1,6 @@
 import math
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.animation as animation
 import time
@@ -35,33 +36,63 @@ class Queue:
 
 class Frame_Animator:
     def __init__(self, queue_length):
-        self.q_left = Queue(queue_length)
-        self.q_right = Queue(queue_length)
+
+        self.q_left_x = Queue(queue_length)
+        self.q_left_y = Queue(queue_length)
+        self.q_left_z = Queue(queue_length)
+
+        self.q_right_x = Queue(queue_length)
+        self.q_right_y = Queue(queue_length)
+        self.q_right_z = Queue(queue_length)
+
+        self.curve_r = None
+        self.curve_l = None
+
 
     def update(self):
         pullData = open("/home/frank/Downloads/nuitrack_repo/Examples/nuitrack_console_sample/data.txt", "r").read()
 
+        if self.curve_l and self.curve_r is not None:
+            self.curve_l.remove()
+            self.curve_r.remove()
+
         try:
             dataArray = pullData.split('\n')
             x1, y1, z1, x2, y2, z2 = dataArray[0].split()
-            self.q_left.add((x1, y1, z1))
-            self.q_right.add((x2, y2, z2))
+
+            self.q_left_x.add(float(x1))
+            self.q_left_y.add(float(y1))
+            self.q_left_z.add(float(z1))
+
+            self.q_right_x.add(float(x2))
+            self.q_right_y.add(float(y2))
+            self.q_right_z.add(float(z2))
 
         except:
             print("No body detected")
 
-        print(self.q_right())
-        print()
-        #self.ax1.plot( *zip(*q_right()), 'bo')
-        #self.ax1.set_ylim(0, 1)
-        #self.ax1.set_xlim(0, 1)
+        self.curve_r = ax.scatter( self.q_right_x() , self.q_right_y() , self.q_right_z(), color = 'C1',marker = 'd')
+        self.curve_l = ax.scatter( self.q_left_x() , self.q_left_y() , self.q_left_z(), color = 'C9',marker ='d')
 
-#fig = plt.figure()
-#ax1 = fig.add_subplot(1,1,1)
-animate = Frame_Animator(10)
-for i in range(1000):
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+ax.set_xlim(0, 1.3)
+ax.set_ylim(0, 1.3)
+ax.set_zlim(0, 2000)
+
+ax.set_xlabel('X axis')
+ax.set_ylabel('Y axis')
+ax.set_zlabel('Z axis')
+
+animate = Frame_Animator(40)
+
+while True:
     animate.update()
-    time.sleep(1)
+    plt.pause(.1)
+
+plt.show()
+
 #ani = animation.FuncAnimation(fig, animate.update(), interval=1000)
 #plt.show()
 
