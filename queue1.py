@@ -48,16 +48,26 @@ class Frame_Animator:
         self.curve_r = None
         self.curve_l = None
 
+        fig = plt.figure()
+        self.ax = fig.add_subplot(111, projection='3d')
+        self.ax.set_xlim(0, 1.3)
+        self.ax.set_ylim(0, 1.3)
+        self.ax.set_zlim(0, 2000)
+        self.ax.set_xlabel('X axis')
+        self.ax.set_ylabel('Y axis')
+        self.ax.set_zlabel('Z axis')
+        plt.draw()
 
-    def update(self):
-        pullData = open("/home/frank/Downloads/nuitrack_repo/Examples/nuitrack_console_sample/data.txt", "r").read()
+    def update(self, string_data):
+        #pullData = open("/home/frank/Downloads/nuitrack_repo/Examples/nuitrack_console_sample/data.txt", "r").read()
 
         if self.curve_l and self.curve_r is not None:
             self.curve_l.remove()
             self.curve_r.remove()
 
         try:
-            dataArray = pullData.split('\n')
+            #dataArray = pullData.split('\n')
+            dataArray = string_data.split('\n')
             x1, y1, z1, x2, y2, z2 = dataArray[0].split()
 
             self.q_left_x.add(float(x1))
@@ -71,73 +81,15 @@ class Frame_Animator:
         except:
             print("No body detected")
 
-        self.curve_r = ax.scatter( self.q_right_x() , self.q_right_y() , self.q_right_z(), color = 'C1',marker = 'd')
-        self.curve_l = ax.scatter( self.q_left_x() , self.q_left_y() , self.q_left_z(), color = 'C9',marker ='d')
+        self.curve_r = self.ax.scatter( self.q_right_x() , self.q_right_y() , self.q_right_z(), color = 'C1',marker = 'd')
+        self.curve_l = self.ax.scatter( self.q_left_x() , self.q_left_y() , self.q_left_z(), color = 'C9',marker ='d')
+        plt.pause(.000001)
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+if __name__ == '__main__':
 
-ax.set_xlim(0, 1.3)
-ax.set_ylim(0, 1.3)
-ax.set_zlim(0, 2000)
+    animate = Frame_Animator(40)
 
-ax.set_xlabel('X axis')
-ax.set_ylabel('Y axis')
-ax.set_zlabel('Z axis')
-
-animate = Frame_Animator(40)
-
-while True:
-    animate.update()
-    plt.pause(.1)
-
-plt.show()
-
-#ani = animation.FuncAnimation(fig, animate.update(), interval=1000)
-#plt.show()
-
-"""
-Define a queue
-	specify length
-	add values to the end, but keep length
-
-Goal: plot two groups of 3 queues
-
-Animate function
-	Pull a line of data from a text file
-	Add values to queues
-"""
+    while True:
+        animate.update("1 1 500 1 1 500")
 
 
-
-"""import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D 
-import math
-from math import floor
-import time
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-
-ax.set_xlim(-1.0, 1.3)
-ax.set_ylim(-1.0, 1.3)
-ax.set_zlim(0, 2000)
-
-ax.set_xlabel('X axis')
-ax.set_ylabel('Y axis')
-ax.set_zlabel('Z axis')
-
-
-with open("data.txt") as file1:
-	for line in file1:
-		values = line.strip().split()
-		#$print(values[0], values[1])
-		#plt.plot(round(float(values[0]),3), round(float(values[1]),3), '-o')
-		ax.scatter(round(float(values[0]),3), round(float(values[1]),3),round(float(values[2]),3),'-o')
-		#plt.pause(.00001) #uncomment for animation
-
-
-plt.show()
-
-"""
